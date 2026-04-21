@@ -17,6 +17,10 @@ function draw() {
   let x = (width - videoW) / 2;
   let y = (height - videoH) / 2;
 
-  // 繪製影像
-  image(capture, x, y, videoW, videoH);
+  // 繪製影像並修正左右顛倒（鏡像處理）
+  push();
+  translate(x + videoW, y); 
+  scale(-1, 1);
+  image(capture, 0, 0, videoW, videoH);
+  pop();
 }
