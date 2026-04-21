@@ -26,7 +26,8 @@ function draw() {
         y: overlay.height + 20,
         size: random(15, 30),
         speed: random(1, 3),
-        opacity: 255
+        opacity: 255,
+        color: [random(200, 255), random(180, 230), random(200, 255)] // 隨機粉彩色系 (RGB)
       });
     }
 
@@ -35,7 +36,7 @@ function draw() {
       let h = hearts[i];
       h.y -= h.speed;     // 往上升
       h.opacity -= 2;     // 逐漸透明
-      drawHeart(overlay, h.x, h.y, h.size, h.opacity);
+      drawHeart(overlay, h.x, h.y, h.size, h.opacity, h.color);
       
       // 移除完全透明的愛心，優化效能
       if (h.opacity <= 0) hearts.splice(i, 1);
@@ -64,9 +65,9 @@ function draw() {
 }
 
 // 繪製愛心的輔助函式
-function drawHeart(pg, x, y, size, opacity) {
+function drawHeart(pg, x, y, size, opacity, col) {
   pg.push();
-  pg.fill(255, 100, 100, opacity);
+  pg.fill(col[0], col[1], col[2], opacity);
   pg.noStroke();
   pg.beginShape();
   pg.vertex(x, y);
