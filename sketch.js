@@ -1,11 +1,16 @@
 let capture;
 let overlay;
 let hearts = []; // 儲存愛心物件的陣列
+let saveBtn; // 儲存按鈕物件
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   capture = createCapture(VIDEO);
   capture.hide(); // 隱藏預設在畫布下方產生的 video 標籤
+
+  saveBtn = createButton('擷取圖片');
+  saveBtn.position(20, 20); // 設定按鈕在視窗左上角
+  saveBtn.mousePressed(takeScreenshot);
 }
 
 function draw() {
@@ -55,13 +60,58 @@ function draw() {
   push();
   translate(x + videoW, y); 
   scale(-1, 1);
-  image(capture, 0, 0, videoW, videoH);
+
+  // 製作黑白馬賽克效果
+  let stepSize = 20; // 設定單位大小為 20x20
+  capture.loadPixels();
+
+  // 確保攝影機像素資料已載入
+  if (capture.pixels.length > 0) {
+    for (let cy = 0; cy < capture.height; cy += stepSize) {
+      for (let cx = 0; cx < capture.width; cx += stepSize) {
+        // 取得該單位起始點的像素索引
+        let i = (cx + cy * capture.width) * 4;
+        let r = capture.pixels[i];
+        let g = capture.pixels[i + 1];
+        let b = capture.pixels[i + 2];
+
+        // 根據需求計算：(R+G+B)/3 取得黑白數值
+        let grayValue = (r + g + b) / 3;
+
+        fill(grayValue);
+        noStroke();
+
+        // 將視訊原始座標映射到畫布上顯示的比例與位置
+        let drawX = map(cx, 0, capture.width, 0, videoW);
+        let drawY = map(cy, 0, capture.height, 0, videoH);
+        let drawW = map(stepSize, 0, capture.width, 0, videoW);
+        let drawH = map(stepSize, 0, capture.height, 0, videoH);
+
+        rect(drawX, drawY, drawW, drawH);
+      }
+    }
+  }
   
   // 將 overlay 顯示在視訊畫面的上方
   if (overlay) {
     image(overlay, 0, 0, videoW, videoH);
   }
   pop();
+}
+
+// 擷取畫面並儲存的函式
+function takeScreenshot() {
+  // 重新計算視訊區域的座標與大小（需與 draw 函式中的邏輯一致）
+  let videoW = width * 0.6;
+  let videoH = height * 0.6;
+  let x = (width - videoW) / 2;
+  let y = (height - videoH) / 2;
+
+  // 使用 get 取得畫布上特定區域的影像
+  let snapshot = get(x, y, videoW, videoH);
+  
+  // 儲存為 jpg 檔案
+  snapshot.save('my_capture', 'jpg');
 }
 
 // 繪製愛心的輔助函式
